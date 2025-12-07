@@ -16,6 +16,7 @@
         <spring-cloud.version>2023.0.3</spring-cloud.version>
     </properties>
 
+    <!-- Import Spring BOMs only -->
     <dependencyManagement>
         <dependencies>
 
@@ -40,39 +41,58 @@
         </dependencies>
     </dependencyManagement>
 
-
     <dependencies>
 
-        <!-- SPRING CLOUD GATEWAY -->
+        <!-- JWT Dependencies (Required in classpath) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Spring Cloud Gateway -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
 
-        <!-- EUREKA DISCOVERY CLIENT -->
+        <!-- Eureka Client -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!-- For actuator endpoints (OPTIONAL) -->
+        <!-- Actuator (Optional) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Lombok (optional but recommended) -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 
