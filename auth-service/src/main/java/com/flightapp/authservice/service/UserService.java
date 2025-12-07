@@ -1,6 +1,6 @@
 package com.flightapp.authservice.service;
-import com.flightapp.authservice.dto.request.*;
 import com.flightapp.authservice.dto.response.*;
+import com.flightapp.authservice.dto.request.*;
 
 import com.flightapp.authservice.entity.User;
 import com.flightapp.authservice.repository.UserRepository;
@@ -24,18 +24,23 @@ public class UserService {
     private String adminSignupSecret;
 
     public SignupResponse signup(SignupRequest request) {
+
+        // 1) username already exists → 400
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username already exists"
+            );
         }
 
-        // Decide role based on adminSecret
+        // 2) decide role (USER by default, ADMIN only with correct secret)
         String role = "USER";
-
         if (request.getAdminSecret() != null &&
                 request.getAdminSecret().equals(adminSignupSecret)) {
             role = "ADMIN";
         }
 
+        // 3) create and save user
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -48,12 +53,19 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest request) {
+
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
+                        new ResponseStatusException(
+                                HttpStatus.BAD_REQUEST,
+                                "Invalid username or password"
+                        ));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid username or password"
+            );
         }
 
         String token = jwtService.generateToken(user);
