@@ -15,5 +15,5 @@ public interface FlightService {
 
     FlightResponse getFlightById(Integer id);
 
-    FlightResponse searchFlight(SearchFlightRequest request);
+    List<FlightResponse> searchFlight(SearchFlightRequest request);
 }

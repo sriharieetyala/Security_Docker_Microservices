@@ -1,7 +1,5 @@
 package com.flightapp.apigateway.security;
 
-
-
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +13,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class JwtLoggingFilter implements GlobalFilter, Ordered {
 

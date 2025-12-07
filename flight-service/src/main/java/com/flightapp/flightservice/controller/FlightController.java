@@ -5,6 +5,7 @@ import com.flightapp.flightservice.dto.request.AddFlightRequest;
 import com.flightapp.flightservice.dto.request.SearchFlightRequest;
 import com.flightapp.flightservice.dto.response.AddFlightResponse;
 import com.flightapp.flightservice.dto.response.FlightResponse;
+import com.flightapp.flightservice.entity.Flight;
 import com.flightapp.flightservice.service.FlightService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -37,8 +38,13 @@ public class FlightController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<FlightResponse> search(@Valid @RequestBody SearchFlightRequest req) {
-     FlightResponse response = service.searchFlight(req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+    public ResponseEntity<List<FlightResponse>> search(@Valid @RequestBody SearchFlightRequest req) {
+        List<FlightResponse> response = service.searchFlight(req);
+        return ResponseEntity.ok(response);
     }
+
+
+
+
 }

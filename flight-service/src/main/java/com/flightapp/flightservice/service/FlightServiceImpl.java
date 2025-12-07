@@ -55,11 +55,24 @@ public class FlightServiceImpl implements FlightService {
     }
 
     @Override
-    public FlightResponse searchFlight(SearchFlightRequest req) {
-        Flight flight = repo.findByFromCityAndToCity(req.getFromCity(), req.getToCity())
-                .orElseThrow(() -> new FlightNotFoundException("No flight found"));
-        return mapToDto(flight);
+    public List<FlightResponse> searchFlight(SearchFlightRequest req) {
+
+        List<Flight> flights = repo.findByFromCityAndToCity(
+                req.getFromCity(),
+                req.getToCity()
+        );
+
+        if (flights.isEmpty()) {
+            throw new FlightNotFoundException(
+                    "No flights found from " + req.getFromCity() + " to " + req.getToCity()
+            );
+        }
+
+        return flights.stream()
+                .map(this::mapToDto)
+                .toList();
     }
+
 
     private FlightResponse mapToDto(Flight f) {
         FlightResponse res = new FlightResponse();
