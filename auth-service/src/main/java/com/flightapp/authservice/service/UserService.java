@@ -1,4 +1,5 @@
 package com.flightapp.authservice.service;
+
 import com.flightapp.authservice.dto.response.*;
 import com.flightapp.authservice.dto.request.*;
 
@@ -16,16 +17,16 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final UserRepository userRepository; // I injected the UserRepository to interact with the DB for user data
+    private final PasswordEncoder passwordEncoder; // I used PasswordEncoder to securely hash the password
+    private final JwtService jwtService; // I used JwtService to generate JWT tokens during login
 
     @Value("${admin.signup.secret}")
-    private String adminSignupSecret;
+    private String adminSignupSecret; // I fetched the admin secret key from application properties for secure admin creation
 
     public SignupResponse signup(SignupRequest request) {
 
-        // 1) username already exists → 400
+        // I checked if the username already exists; if yes, I throw 400 BAD_REQUEST
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -33,27 +34,30 @@ public class UserService {
             );
         }
 
-        // 2) decide role (USER by default, ADMIN only with correct secret)
+        // I set the default role as USER; only if correct secret is provided, I mark the user as ADMIN
         String role = "USER";
         if (request.getAdminSecret() != null &&
                 request.getAdminSecret().equals(adminSignupSecret)) {
             role = "ADMIN";
         }
 
-        // 3) create and save user
+        // I created a new User object and encoded the password before saving to the database
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .build();
 
+        // I saved the new user into the database
         user = userRepository.save(user);
 
+        // I returned a simple signup response containing user details (without password)
         return new SignupResponse(user.getId(), user.getUsername(), user.getRole());
     }
 
     public LoginResponse login(LoginRequest request) {
 
+        // I fetched the user by username; if not found, I returned 400 BAD_REQUEST
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() ->
                         new ResponseStatusException(
@@ -61,6 +65,7 @@ public class UserService {
                                 "Invalid username or password"
                         ));
 
+        // I verified the entered password with the stored hashed password
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
@@ -68,8 +73,10 @@ public class UserService {
             );
         }
 
+        // I generated a JWT token for the successfully authenticated user
         String token = jwtService.generateToken(user);
 
+        // I returned the login response with token and user info
         return new LoginResponse(token, user.getUsername(), user.getRole());
     }
 }
