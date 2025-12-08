@@ -20,6 +20,9 @@ The system consists of the following services:
 | Email-Service    | Sends booking confirmation emails through RabbitMQ           |
 
 Communication between services happens through Eureka discovery and requests are routed via the API-Gateway.
+<img width="3488" height="1216" alt="Architecture" src="https://github.com/user-attachments/assets/ed1f382b-7a4e-4aa8-a6d1-a4b6106d0b3c" />
+
+
 
 ---
 
