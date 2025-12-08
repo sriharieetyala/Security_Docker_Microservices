@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -121,6 +122,7 @@ class FlightControllerTest {
 
     @Test
     void searchFlight_success() throws Exception {
+        // given
         SearchFlightRequest req = new SearchFlightRequest();
         req.setFromCity("A");
         req.setToCity("B");
@@ -129,17 +131,22 @@ class FlightControllerTest {
         f.setId(1);
         f.setFlightNumber("F101");
 
-        when(service.searchFlight(any(SearchFlightRequest.class))).thenReturn(f);
+        // service returns a LIST, not a single object
+        List<FlightResponse> flights = Collections.singletonList(f);
+        when(service.searchFlight(any(SearchFlightRequest.class))).thenReturn(flights);
 
+        // when + then
         mockMvc.perform(post("/flights/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.flightNumber").value("F101"));
+                .andExpect(status().isOk())                       // 200, not 201
+                .andExpect(jsonPath("$[0].flightNumber").value("F101"))
+                .andExpect(jsonPath("$[0].id").value(1));
     }
 
     @Test
     void searchFlight_notFound_throws() throws Exception {
+        // given
         SearchFlightRequest req = new SearchFlightRequest();
         req.setFromCity("A");
         req.setToCity("B");
@@ -147,12 +154,14 @@ class FlightControllerTest {
         when(service.searchFlight(any(SearchFlightRequest.class)))
                 .thenThrow(new FlightNotFoundException("No flight found"));
 
+        // when + then
         mockMvc.perform(post("/flights/search")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("No flight found"));
     }
+
 
     @Test
     void addFlight_validationError() throws Exception {

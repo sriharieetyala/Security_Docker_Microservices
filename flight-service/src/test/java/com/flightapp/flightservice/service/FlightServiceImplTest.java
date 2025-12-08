@@ -113,10 +113,19 @@ class FlightServiceImplTest {
         Flight flight = Flight.builder().id(1).flightNumber("F101").fromCity("A").toCity("B")
                 .departureTime(LocalDateTime.now()).arrivalTime(LocalDateTime.now())
                 .cost(100).seatsAvailable(50).build();
-        when(repo.findByFromCityAndToCity("A", "B")).thenReturn(Optional.of(flight));
 
-        FlightResponse res = service.searchFlight(req);
+        // repo returns List<Flight>, so stub with a list
+        when(repo.findByFromCityAndToCity("A", "B"))
+                .thenReturn(List.of(flight));
+
+        // service returns List<FlightResponse>, not a single object
+        List<FlightResponse> resList = service.searchFlight(req);
+
+        assertNotNull(resList);
+        assertEquals(1, resList.size());
+        FlightResponse res = resList.get(0);
         assertEquals("F101", res.getFlightNumber());
+        assertEquals(1, res.getId());
     }
 
     @Test
@@ -125,7 +134,10 @@ class FlightServiceImplTest {
         req.setFromCity("A");
         req.setToCity("B");
 
-        when(repo.findByFromCityAndToCity("A", "B")).thenReturn(Optional.empty());
+        // no flights found -> empty list
+        when(repo.findByFromCityAndToCity("A", "B"))
+                .thenReturn(Collections.emptyList());
+
         assertThrows(FlightNotFoundException.class, () -> service.searchFlight(req));
     }
 }
