@@ -103,7 +103,7 @@ During deployment:
 * Config-Service supplies externalized configuration
 * Email-Service processes notifications asynchronously via RabbitMQ
 
-Docker Compose can be used to bring up the entire stack with a single command, enabling full environment setup with minimal effort.
+**Docker Compose** can be used to bring up the entire stack with a single command, enabling full environment setup with minimal effort.
 
 ---
 
